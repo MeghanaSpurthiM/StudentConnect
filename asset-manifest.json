@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/StudentConnect/static/css/main.ddc7d3f0.css",
-    "main.js": "/StudentConnect/static/js/main.d23b5064.js",
+    "main.css": "/StudentConnect/static/css/main.9fe40f7c.css",
+    "main.js": "/StudentConnect/static/js/main.b84fb8a3.js",
     "static/js/453.fa02d255.chunk.js": "/StudentConnect/static/js/453.fa02d255.chunk.js",
     "index.html": "/StudentConnect/index.html",
-    "main.ddc7d3f0.css.map": "/StudentConnect/static/css/main.ddc7d3f0.css.map",
-    "main.d23b5064.js.map": "/StudentConnect/static/js/main.d23b5064.js.map",
+    "main.9fe40f7c.css.map": "/StudentConnect/static/css/main.9fe40f7c.css.map",
+    "main.b84fb8a3.js.map": "/StudentConnect/static/js/main.b84fb8a3.js.map",
     "453.fa02d255.chunk.js.map": "/StudentConnect/static/js/453.fa02d255.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.ddc7d3f0.css",
-    "static/js/main.d23b5064.js"
+    "static/css/main.9fe40f7c.css",
+    "static/js/main.b84fb8a3.js"
   ]
 }
