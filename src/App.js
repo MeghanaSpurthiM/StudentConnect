@@ -5,6 +5,7 @@ import Stack from 'react-bootstrap/Stack';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Table from 'react-bootstrap/Table';
+import { FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
 
 function App() {
   const [people, setPeople] = useState([
@@ -16,7 +17,7 @@ function App() {
   const [globalFilter, setGlobalFilter] = useState('');
 
   const columns = [
-    { accessorKey: 'name', header: 'Name' },
+    { accessorKey: 'name', header: "Name" },
     { accessorKey: 'favoriteFood', header: 'Favorite Food' },
     { accessorKey: 'favoriteColor', header: 'Favorite Color' },
     {
@@ -28,6 +29,8 @@ function App() {
           <Button variant="danger" size="sm" onClick={() => handleDelete(row.index)}>Delete</Button>
         </>
       ),
+      // Disable sorting on the actions column
+      enableSorting: false,
     },
   ];
 
@@ -120,9 +123,18 @@ function App() {
           {table.getHeaderGroups().map(headerGroup => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map(header => (
-                <th key={header.id} onClick={header.column.getToggleSortingHandler()} style={{ cursor: 'pointer' }}>
+                <th key={header.id} 
+                    onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
+                    style={{ cursor: header.column.getCanSort() ? 'pointer' : 'default' }}>
                   {flexRender(header.column.columnDef.header, header.getContext())}
-                  {header.column.getIsSorted() ? (header.column.getIsSorted() === 'asc' ? ' 🔼' : ' 🔽') : ''}
+                  {/* Render sorting icon only if sorting is enabled */}
+                  {header.column.getCanSort() && (
+                    header.column.getIsSorted() ? (
+                      header.column.getIsSorted() === 'asc' ? <FaSortUp /> : <FaSortDown />
+                    ) : (
+                      <FaSort />
+                    )
+                  )}
                 </th>
               ))}
             </tr>
