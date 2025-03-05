@@ -1,0 +1,24 @@
+#customCard{
+  background-color: lightgrey;
+  padding: 0%;
+  margin-left: 0%;
+}
+
+.p-2
+{
+  padding: 0% !important;
+}
+
+
+ul{
+  padding-left: 2% !important;
+  list-style-type: none;
+  padding-inline-start: 1%;
+  
+}
+
+#cb
+{
+  padding: 0.5%;
+}
+
