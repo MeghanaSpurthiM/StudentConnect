@@ -50,10 +50,28 @@ function App() {
     const favoriteFood = formData.favoriteFood.trim();
     const favoriteColor = formData.favoriteColor.trim();
 
+    const textRegex = /^[A-Za-z\s]+$/;
+
     if (!name || !favoriteFood || !favoriteColor) {
       alert('All fields are required!');
       return;
     }
+
+    if (!textRegex.test(name)) {
+      alert('Name should only contain letters.');
+      return;
+    }
+
+    if (!textRegex.test(favoriteFood)) {
+      alert('Favorite Food should only contain letters.');
+      return;
+    }
+
+    if (!textRegex.test(favoriteColor)) {
+      alert('Favorite Color should be a valid name or hex code.');
+      return;
+    }
+
 
     if (editingIndex !== null) {
       const updatedPeople = [...people];
@@ -61,10 +79,7 @@ function App() {
       setPeople(updatedPeople);
       setEditingIndex(null);
     } else {
-      if (people.some((person) => person.name === name)) {
-        alert('Name must be unique!');
-        return;
-      }
+      
       setPeople([...people, { name, favoriteFood, favoriteColor }]);
     }
     setFormData({ name: '', favoriteFood: '', favoriteColor: '' });
