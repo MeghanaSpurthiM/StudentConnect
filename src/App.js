@@ -8,6 +8,8 @@ import Table from 'react-bootstrap/Table';
 import { FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
 
 function App() {
+  
+  document.title = "Student Connect";
   const [people, setPeople] = useState([
     { name: 'Meghana', favoriteFood: 'Tiramisu', favoriteColor: 'Blue' },
     { name: 'Spurthi', favoriteFood: 'Rasmalai', favoriteColor: 'Green' },
