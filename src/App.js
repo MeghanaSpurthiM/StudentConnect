@@ -5,14 +5,14 @@ import Stack from 'react-bootstrap/Stack';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Table from 'react-bootstrap/Table';
-import { FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
+import { FaSort, FaSortUp, FaSortDown, FaThumbsUp } from "react-icons/fa";
 
 function App() {
   
   document.title = "Student Connect";
   const [people, setPeople] = useState([
-    { name: 'Meghana', favoriteFood: 'Tiramisu', favoriteColor: 'Blue' },
-    { name: 'Spurthi', favoriteFood: 'Rasmalai', favoriteColor: 'Green' },
+    { name: 'Meghana', favoriteFood: 'Tiramisu', favoriteColor: 'Blue', likes: 0 },
+    { name: 'Spurthi', favoriteFood: 'Rasmalai', favoriteColor: 'Green', likes: 0 },
   ]);
   const [formData, setFormData] = useState({ name: '', favoriteFood: '', favoriteColor: '' });
   const [editingIndex, setEditingIndex] = useState(null);
@@ -23,6 +23,19 @@ function App() {
     { accessorKey: 'favoriteFood', header: 'Favorite Food' },
     { accessorKey: 'favoriteColor', header: 'Favorite Color' },
     {
+      accessorKey: 'likes',
+      header: 'Likes',
+      cell: ({ row }) => (
+        <Button 
+          variant="outline-primary" 
+          size="sm" 
+          onClick={() => handleLike(row.index)}
+        >
+          <FaThumbsUp /> {row.original.likes}
+        </Button>
+      ),
+    },
+    {
       accessorKey: 'actions',
       header: 'Actions',
       cell: ({ row }) => (
@@ -31,7 +44,6 @@ function App() {
           <Button variant="danger" size="sm" onClick={() => handleDelete(row.index)}>Delete</Button>
         </>
       ),
-      // Disable sorting on the actions column
       enableSorting: false,
     },
   ];
@@ -74,15 +86,13 @@ function App() {
       return;
     }
 
-
     if (editingIndex !== null) {
       const updatedPeople = [...people];
-      updatedPeople[editingIndex] = { name, favoriteFood, favoriteColor };
+      updatedPeople[editingIndex] = { name, favoriteFood, favoriteColor, likes: 0 }; // Reset likes when editing
       setPeople(updatedPeople);
       setEditingIndex(null);
     } else {
-      
-      setPeople([...people, { name, favoriteFood, favoriteColor }]);
+      setPeople([...people, { name, favoriteFood, favoriteColor, likes: 0 }]);
     }
     setFormData({ name: '', favoriteFood: '', favoriteColor: '' });
   };
@@ -94,6 +104,12 @@ function App() {
   const handleEdit = (index) => {
     setFormData(people[index]);
     setEditingIndex(index);
+  };
+
+  const handleLike = (index) => {
+    const updatedPeople = [...people];
+    updatedPeople[index].likes += 1; // Increment likes count
+    setPeople(updatedPeople);
   };
 
   return (
@@ -144,7 +160,6 @@ function App() {
                     onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
                     style={{ cursor: header.column.getCanSort() ? 'pointer' : 'default' }}>
                   {flexRender(header.column.columnDef.header, header.getContext())}
-                  {/* Render sorting icon only if sorting is enabled */}
                   {header.column.getCanSort() && (
                     header.column.getIsSorted() ? (
                       header.column.getIsSorted() === 'asc' ? <FaSortUp /> : <FaSortDown />
