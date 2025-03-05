@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useReactTable, getCoreRowModel, getFilteredRowModel, getSortedRowModel, flexRender } from '@tanstack/react-table';
 import Stack from 'react-bootstrap/Stack';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
@@ -10,9 +11,35 @@ function App() {
     { name: 'Meghana', favoriteFood: 'Tiramisu', favoriteColor: 'Blue' },
     { name: 'Spurthi', favoriteFood: 'Rasmalai', favoriteColor: 'Green' },
   ]);
-
   const [formData, setFormData] = useState({ name: '', favoriteFood: '', favoriteColor: '' });
   const [editingIndex, setEditingIndex] = useState(null);
+  const [globalFilter, setGlobalFilter] = useState('');
+
+  const columns = [
+    { accessorKey: 'name', header: 'Name' },
+    { accessorKey: 'favoriteFood', header: 'Favorite Food' },
+    { accessorKey: 'favoriteColor', header: 'Favorite Color' },
+    {
+      accessorKey: 'actions',
+      header: 'Actions',
+      cell: ({ row }) => (
+        <>
+          <Button variant="warning" size="sm" className="me-2" onClick={() => handleEdit(row.index)}>Edit</Button>
+          <Button variant="danger" size="sm" onClick={() => handleDelete(row.index)}>Delete</Button>
+        </>
+      ),
+    },
+  ];
+
+  const table = useReactTable({
+    data: people,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    state: { globalFilter },
+    onGlobalFilterChange: setGlobalFilter,
+  });
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -20,30 +47,21 @@ function App() {
     const favoriteFood = formData.favoriteFood.trim();
     const favoriteColor = formData.favoriteColor.trim();
 
-    const textRegex = /^[A-Za-z\s]+$/;
-    const colorRegex = /^(#[0-9A-Fa-f]{3,6}|[A-Za-z\s]+)$/;
-
     if (!name || !favoriteFood || !favoriteColor) {
       alert('All fields are required!');
-      return;
-    }
-    if (!textRegex.test(name) || !textRegex.test(favoriteFood)) {
-      alert('Name and Favorite Food should only contain letters.');
-      return;
-    }
-    if (!colorRegex.test(favoriteColor)) {
-      alert('Favorite Color should be a valid name or hex code.');
       return;
     }
 
     if (editingIndex !== null) {
       const updatedPeople = [...people];
       updatedPeople[editingIndex] = { name, favoriteFood, favoriteColor };
-      
       setPeople(updatedPeople);
       setEditingIndex(null);
     } else {
-      
+      if (people.some((person) => person.name === name)) {
+        alert('Name must be unique!');
+        return;
+      }
       setPeople([...people, { name, favoriteFood, favoriteColor }]);
     }
     setFormData({ name: '', favoriteFood: '', favoriteColor: '' });
@@ -68,7 +86,7 @@ function App() {
             placeholder="Name"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            
+            disabled={editingIndex !== null}
           />
           <Form.Control
             type="text"
@@ -89,25 +107,33 @@ function App() {
         </Stack>
       </Form>
 
+      <Form.Control
+        type="text"
+        placeholder="Search profiles..."
+        className="mb-3"
+        value={globalFilter}
+        onChange={(e) => setGlobalFilter(e.target.value)}
+      />
+
       <Table striped bordered hover>
         <thead>
-          <tr>
-            <th>Name</th>
-            <th>Favorite Food</th>
-            <th>Favorite Color</th>
-            <th>Actions</th>
-          </tr>
+          {table.getHeaderGroups().map(headerGroup => (
+            <tr key={headerGroup.id}>
+              {headerGroup.headers.map(header => (
+                <th key={header.id} onClick={header.column.getToggleSortingHandler()} style={{ cursor: 'pointer' }}>
+                  {flexRender(header.column.columnDef.header, header.getContext())}
+                  {header.column.getIsSorted() ? (header.column.getIsSorted() === 'asc' ? ' 🔼' : ' 🔽') : ''}
+                </th>
+              ))}
+            </tr>
+          ))}
         </thead>
         <tbody>
-          {people.map((person, index) => (
-            <tr key={index}>
-              <td>{person.name}</td>
-              <td>{person.favoriteFood}</td>
-              <td>{person.favoriteColor}</td>
-              <td>
-                <Button variant="warning" size="sm" className="me-2" onClick={() => handleEdit(index)}>Edit</Button>
-                <Button variant="danger" size="sm" onClick={() => handleDelete(index)}>Delete</Button>
-              </td>
+          {table.getRowModel().rows.map(row => (
+            <tr key={row.id}>
+              {row.getVisibleCells().map(cell => (
+                <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+              ))}
             </tr>
           ))}
         </tbody>
