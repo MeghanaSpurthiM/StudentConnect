@@ -1,96 +1,100 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-
-
-// Using Stack layout from ReactBootstrap
+import { useTable } from '@tanstack/react-table';
 import Stack from 'react-bootstrap/Stack';
-
-// Using Bootstrap Components for responsive design
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
+import Table from 'react-bootstrap/Table';
 
-// React Component to return one card of person's information
-function PersonRow(props) {
+function App() {
+  const [people, setPeople] = useState([
+    { name: 'Meghana', favoriteFood: 'Tiramisu', favoriteColor: 'Blue' },
+    { name: 'Spurthi', favoriteFood: 'Rasmalai', favoriteColor: 'Green' },
+  ]);
 
-    // To keep track of the number of clicks on the like button
-    const [likes, setLikes] = React.useState(0);
-    
-    //Event Handler for the OnClick event on like button
-    function handleClick() {
-      setLikes(likes + 1);
+  const [formData, setFormData] = useState({ name: '', favoriteFood: '', favoriteColor: '' });
+
+  // Handle form submission
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!formData.name || !formData.favoriteFood || !formData.favoriteColor) {
+      alert('All fields are required!');
+      return;
     }
+    setPeople([...people, formData]);
+    setFormData({ name: '', favoriteFood: '', favoriteColor: '' });
+  };
 
-  // Reads the passed person information using props - puts them into a card and returns the component
+  // Handle delete action
+  const handleDelete = (name) => {
+    setPeople(people.filter((person) => person.name !== name));
+  };
+
+  // Define table columns
+  const columns = [
+    { Header: 'Name', accessor: 'name' },
+    { Header: 'Favorite Food', accessor: 'favoriteFood' },
+    { Header: 'Favorite Color', accessor: 'favoriteColor' },
+    { Header: 'Actions', accessor: 'actions' },
+  ];
+
   return (
-    <Card id="customCard">
-      <Card.Body id="cb">
-      <ul>
-        
-        
-          <Stack gap={2}>
-            <li>Name: {(props.person.name)}</li>
-            <li>Favorite: {(props.person.favoriteColor)}</li>
+    <div className="container mt-4">
+      <h1 className="text-center mb-4">My Classmates</h1>
 
-            <Stack direction="horizontal" gap={3}>
-            
-            <li>Favorite Food: {(props.person.favoriteFood)}</li>
-        
-            <Button variant="secondary" className='p-2 ms-auto' onClick={handleClick}>Like({likes})</Button>
-            
-            </Stack>
-          </Stack>
-        
-       
-        </ul>
-      </Card.Body>
-    </Card>
-   
+      {/* Form to add new profiles */}
+      <Form onSubmit={handleSubmit} className="mb-4">
+        <Stack direction="horizontal" gap={3}>
+          <Form.Control
+            type="text"
+            placeholder="Name"
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          />
+          <Form.Control
+            type="text"
+            placeholder="Favorite Food"
+            value={formData.favoriteFood}
+            onChange={(e) => setFormData({ ...formData, favoriteFood: e.target.value })}
+          />
+          <Form.Control
+            type="text"
+            placeholder="Favorite Color"
+            value={formData.favoriteColor}
+            onChange={(e) => setFormData({ ...formData, favoriteColor: e.target.value })}
+          />
+          <Button type="submit" variant="primary">Add</Button>
+        </Stack>
+      </Form>
+
+      {/* Table View */}
+      <Table striped bordered hover>
+        <thead>
+          <tr>
+            {columns.map((col) => (
+              <th key={col.accessor}>{col.Header}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {people.map((person) => (
+            <tr key={person.name}>
+              <td>{person.name}</td>
+              <td>{person.favoriteFood}</td>
+              <td>{person.favoriteColor}</td>
+              <td>
+                <Button variant="danger" size="sm" onClick={() => handleDelete(person.name)}>
+                  Delete
+                </Button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+    </div>
   );
 }
-
-// Component for Title - different props can generate components with different text - it is dynamic
-function Header({ title }) {
-  return <p className='h1'>{title ? title : 'Default Title'}</p>;
-} 
-
-// Starting point of execution"
-function App() {
-  
-  // People array of information with 3 attributes each 
-  // Please feel free to add more entries to the array and run it - the app is coded to be dynamic 
-  // and will generate the new card components on the fly
-
-  const People = [{'name':'Meghana','favoriteFood':'Tiramisu','favoriteColor':'Blue'},
-    {'name':'Spurthi','favoriteFood':'Rasmalai','favoriteColor':'Green'},
-    
-  ]
- 
-  document.title = "MyClassmates"
-
-  return (
-  
-    <div>
-       <div className='container'>
-        <div className='row '>
-          <Header title="My Classmates" className=".ml-1 .px-2 "/>
-        </div>
-        <div className='row'>
-        <ul>  
-          {/* Using stack layout from ReactBootstrap to pile the records */}
-            <Stack gap={3} className='.ml-1 .px-2'>
-              {/* Reading each record from the People array and using map() to iterate through the list */}
-                  {People.map((person) => (
-                    // Card component for each record
-                    <PersonRow person={person} key={person.name} ></PersonRow>
-                  ))}
-            </Stack>
-        </ul>
-        </div>
-      </div>
-    </div>
-   );
-}
-   
 
 export default App;
