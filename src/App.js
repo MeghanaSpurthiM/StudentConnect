@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
-import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { useTable } from '@tanstack/react-table';
 import Stack from 'react-bootstrap/Stack';
-import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Table from 'react-bootstrap/Table';
@@ -15,36 +12,55 @@ function App() {
   ]);
 
   const [formData, setFormData] = useState({ name: '', favoriteFood: '', favoriteColor: '' });
+  const [editingIndex, setEditingIndex] = useState(null);
 
-  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.favoriteFood || !formData.favoriteColor) {
+    const name = formData.name.trim();
+    const favoriteFood = formData.favoriteFood.trim();
+    const favoriteColor = formData.favoriteColor.trim();
+
+    const textRegex = /^[A-Za-z\s]+$/;
+    const colorRegex = /^(#[0-9A-Fa-f]{3,6}|[A-Za-z\s]+)$/;
+
+    if (!name || !favoriteFood || !favoriteColor) {
       alert('All fields are required!');
       return;
     }
-    setPeople([...people, formData]);
+    if (!textRegex.test(name) || !textRegex.test(favoriteFood)) {
+      alert('Name and Favorite Food should only contain letters.');
+      return;
+    }
+    if (!colorRegex.test(favoriteColor)) {
+      alert('Favorite Color should be a valid name or hex code.');
+      return;
+    }
+
+    if (editingIndex !== null) {
+      const updatedPeople = [...people];
+      updatedPeople[editingIndex] = { name, favoriteFood, favoriteColor };
+      
+      setPeople(updatedPeople);
+      setEditingIndex(null);
+    } else {
+      
+      setPeople([...people, { name, favoriteFood, favoriteColor }]);
+    }
     setFormData({ name: '', favoriteFood: '', favoriteColor: '' });
   };
 
-  // Handle delete action
-  const handleDelete = (name) => {
-    setPeople(people.filter((person) => person.name !== name));
+  const handleDelete = (index) => {
+    setPeople(people.filter((_, i) => i !== index));
   };
 
-  // Define table columns
-  const columns = [
-    { Header: 'Name', accessor: 'name' },
-    { Header: 'Favorite Food', accessor: 'favoriteFood' },
-    { Header: 'Favorite Color', accessor: 'favoriteColor' },
-    { Header: 'Actions', accessor: 'actions' },
-  ];
+  const handleEdit = (index) => {
+    setFormData(people[index]);
+    setEditingIndex(index);
+  };
 
   return (
     <div className="container mt-4">
       <h1 className="text-center mb-4">My Classmates</h1>
-
-      {/* Form to add new profiles */}
       <Form onSubmit={handleSubmit} className="mb-4">
         <Stack direction="horizontal" gap={3}>
           <Form.Control
@@ -52,6 +68,7 @@ function App() {
             placeholder="Name"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            
           />
           <Form.Control
             type="text"
@@ -65,29 +82,31 @@ function App() {
             value={formData.favoriteColor}
             onChange={(e) => setFormData({ ...formData, favoriteColor: e.target.value })}
           />
-          <Button type="submit" variant="primary">Add</Button>
+          <Button type="submit" variant="primary">{editingIndex !== null ? 'Update' : 'Add'}</Button>
+          {editingIndex !== null && (
+            <Button variant="secondary" onClick={() => { setEditingIndex(null); setFormData({ name: '', favoriteFood: '', favoriteColor: '' }); }}>Cancel</Button>
+          )}
         </Stack>
       </Form>
 
-      {/* Table View */}
       <Table striped bordered hover>
         <thead>
           <tr>
-            {columns.map((col) => (
-              <th key={col.accessor}>{col.Header}</th>
-            ))}
+            <th>Name</th>
+            <th>Favorite Food</th>
+            <th>Favorite Color</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {people.map((person) => (
-            <tr key={person.name}>
+          {people.map((person, index) => (
+            <tr key={index}>
               <td>{person.name}</td>
               <td>{person.favoriteFood}</td>
               <td>{person.favoriteColor}</td>
               <td>
-                <Button variant="danger" size="sm" onClick={() => handleDelete(person.name)}>
-                  Delete
-                </Button>
+                <Button variant="warning" size="sm" className="me-2" onClick={() => handleEdit(index)}>Edit</Button>
+                <Button variant="danger" size="sm" onClick={() => handleDelete(index)}>Delete</Button>
               </td>
             </tr>
           ))}
