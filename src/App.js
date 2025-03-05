@@ -68,7 +68,7 @@ function App() {
     }
 
     if (!textRegex.test(favoriteColor)) {
-      alert('Favorite Color should be a valid name or hex code.');
+      alert('Favorite Color should be a valid name');
       return;
     }
 
